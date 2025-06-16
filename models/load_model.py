@@ -119,6 +119,12 @@ def get_model_info(model_name: str) -> dict:
             "task": "text-generation",
             "description": "Distilled version of GPT-2, 2x faster, same performance"
         },
+        "gpt2": {
+            "type": "GPT-2 Base",
+            "size": "~548MB", 
+            "task": "text-generation",
+            "description": "Standard GPT-2 model for text generation"
+        },
         "microsoft/DialoGPT-small": {
             "type": "DialoGPT Small",
             "size": "~353MB", 
