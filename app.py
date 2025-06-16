@@ -211,7 +211,7 @@ def main():
                     if CLIPBOARD_AVAILABLE and copy_to_clipboard(final_prompt):
                         st.success("✅ Final prompt copied to clipboard!")
                     else:
-                        st.info("📋 Copy this prompt:")
+                        st.info("📋 Copy to clipboard:")
                         st.code(final_prompt)
     
     with col2:
@@ -265,7 +265,7 @@ def main():
                             if CLIPBOARD_AVAILABLE and copy_to_clipboard(generated_text):
                                 st.success("✅ Response copied to clipboard!")
                             else:
-                                st.info("📋 Copy this response:")
+                                st.info("📋 Copy to clipboard:")
                                 st.code(generated_text)
                         
                         # Show generation info
