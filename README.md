@@ -6,8 +6,10 @@ A lightweight, Streamlit-based prompt engineering playground using Hugging Face 
 
 - **Interactive UI**: Clean Streamlit interface for prompt experimentation
 - **Multiple Prompt Types**: Pre-configured templates for different prompting strategies
+- **Live Model Inference**: Real-time text generation with Hugging Face models
 - **CPU-Optimized Models**: Works with lightweight models that run efficiently on Streamlit Cloud
 - **Real-time Testing**: Instant feedback on different prompt formulations
+- **Model Information**: Detailed info about each available model
 
 ## 🚀 Quick Start
 
@@ -37,6 +39,9 @@ streamlit run app.py
 
 ```
 ├── app.py                 # Main Streamlit application
+├── models/               
+│   ├── __init__.py       # Models package initialization
+│   └── load_model.py     # Model loading and inference utilities
 ├── prompt_types.json      # Prompt templates and descriptions
 ├── requirements.txt       # Python dependencies
 ├── .streamlit/           
@@ -46,8 +51,8 @@ streamlit run app.py
 
 ## 🎯 Roadmap
 
-- [ ] Stage 1: ✅ Initialize Project & UI Skeleton 
-- [ ] Stage 2: Add model inference capabilities
+- [x] Stage 1: ✅ Initialize Project & UI Skeleton 
+- [x] Stage 2: ✅ Add model inference capabilities
 - [ ] Stage 3: Implement response comparison features
 - [ ] Stage 4: Add prompt optimization suggestions
 
