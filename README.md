@@ -7,6 +7,10 @@ A lightweight, Streamlit-based prompt engineering playground using Hugging Face 
 - **Interactive UI**: Clean Streamlit interface for prompt experimentation
 - **Multiple Prompt Types**: Pre-configured templates for different prompting strategies
 - **Live Model Inference**: Real-time text generation with Hugging Face models
+- **Multi-Model Comparison**: Side-by-side comparison of up to 3 models
+- **Smart Template Engine**: Auto-fill templates with validation and editing
+- **Performance Timing**: Generation time analysis for each model
+- **Response Differences**: Highlight textual differences between model outputs
 - **CPU-Optimized Models**: Works with lightweight models that run efficiently on Streamlit Cloud
 - **Real-time Testing**: Instant feedback on different prompt formulations
 - **Model Information**: Detailed info about each available model
@@ -34,6 +38,7 @@ streamlit run app.py
 - `sshleifer/tiny-gpt2` - Ultra-lightweight GPT-2 variant
 - `distilgpt2` - Distilled version of GPT-2
 - `microsoft/DialoGPT-small` - Small conversational AI model
+- `gpt2` - Standard GPT-2 model for comparison
 
 ## 📁 Project Structure
 
