@@ -11,7 +11,8 @@
 - 🧠 **Prompt Type Selector**: Choose from Instruction, Zero-shot, Few-shot, Chain-of-Thought, and Role-Playing prompts
 - 🛠️ **Smart Prompt Templates**: Auto-fill templates with validation and real-time input injection
 - 🤖 **Multi-Model Comparison**: Test up to 3 lightweight models side-by-side
-- 📊 **Performance Analysis**: Generation timing and response difference highlighting
+- � **Safety Features**: Content filtering, input validation, and safe prompt formatting
+- �📊 **Performance Analysis**: Generation timing and response difference highlighting
 - 🔁 **Interactive Controls**: Regenerate responses and copy individual outputs
 - 💾 **Export Functionality**: Download prompts and responses as `.txt` or `.md` files
 - 🎨 **Theme Customization**: Dark/Light mode toggle with custom branding
@@ -32,7 +33,8 @@ prompt-playground/
 │   └── load_model.py         # Model loading and inference utilities
 ├── utils/
 │   ├── __init__.py           # Utils package initialization
-│   └── prompt_formatter.py  # Prompt formatting and validation
+│   ├── prompt_formatter.py  # Prompt formatting and validation
+│   └── safety.py             # Safety utilities and content filtering
 ├── assets/
 │   ├── logo.svg              # App logo (SVG format)
 │   └── logo.png              # Logo fallback (PNG)
@@ -54,12 +56,20 @@ prompt-playground/
 
 ### 🤖 Supported Models
 
-Small, CPU-friendly language models optimized for 1GB RAM environments:
+Safe, lightweight models optimized for 1GB RAM environments:
 
-- `sshleifer/tiny-gpt2` - Ultra-lightweight GPT-2 variant (42MB)
-- `distilgpt2` - Distilled version of GPT-2 (353MB)
-- `microsoft/DialoGPT-small` - Conversational AI model (117MB)
-- `gpt2` - Standard GPT-2 for comparison (548MB)
+- `google/flan-t5-small` - ✅ **Safe**: Instruction-tuned, well-aligned model (80MB)
+- `tiiuae/falcon-rw-1b` - ✅ **Safe**: Curated training data, good behavior (2.4GB)
+- `EleutherAI/pythia-70m` - ✅ **Safe**: Research model with safety considerations (285MB)
+- `microsoft/DialoGPT-small` - ⚠️ **Moderate**: Conversational, relatively safe (117MB)
+- `distilgpt2 (⚠️ unfiltered)` - ⚠️ **Warning**: May generate unfiltered content (353MB)
+- `sshleifer/tiny-gpt2 (⚠️ may generate NSFW text)` - ⚠️ **Warning**: Potential NSFW content (42MB)
+
+**Safety Features:**
+- 🛡️ **Content Filtering**: Automatic profanity and inappropriate content detection
+- 🔍 **Input Validation**: Prompt injection attempt detection and prevention
+- ⚠️ **Model Warnings**: Clear safety indicators for each model
+- 🎯 **Safe Prompting**: Automatic prompt formatting for better behavior
 
 ---
 
