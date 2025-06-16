@@ -42,6 +42,7 @@ def load_model(model_name: str) -> Optional[Any]:
             trust_remote_code=False,  # Security best practice
             return_full_text=False if task == "text-generation" else True,
             max_new_tokens=50,  # Default limit for memory efficiency
+            model_kwargs={"low_cpu_mem_usage": True}  # Optimize for low memory usage
         )
         
         logger.info(f"Successfully loaded model: {model_name}")
