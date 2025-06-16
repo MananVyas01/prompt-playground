@@ -1,0 +1,22 @@
+{
+  "Instruction": {
+    "template": "Instruction: {input}\n\nResponse:",
+    "description": "Direct instruction-following format. The model receives a clear instruction and responds accordingly."
+  },
+  "Zero-shot": {
+    "template": "Question: {input}\nAnswer:",
+    "description": "Zero-shot prompting where the model answers without any examples, relying on its training knowledge."
+  },
+  "Few-shot": {
+    "template": "Here are some examples:\n\nQ: What is the capital of France?\nA: Paris\n\nQ: What is 2+2?\nA: 4\n\nQ: {input}\nA:",
+    "description": "Few-shot prompting with examples to guide the model's response format and style."
+  },
+  "Chain-of-Thought": {
+    "template": "Let's think step by step about this problem:\n\n{input}\n\nStep-by-step reasoning:",
+    "description": "Encourages the model to break down complex problems into reasoning steps."
+  },
+  "Role-Playing": {
+    "template": "You are a helpful assistant. A user asks: {input}\n\nAs a helpful assistant, I respond:",
+    "description": "Assigns a specific role or persona to the model to influence its response style."
+  }
+}
