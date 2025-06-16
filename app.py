@@ -1,10 +1,16 @@
 import streamlit as st
 import json
 import os
-import pyperclip
 from typing import Dict, List
 from models.load_model import load_model, generate_text, get_model_info
 from utils.prompt_formatter import format_prompt, validate_template, count_tokens_estimate
+
+# Try to import pyperclip, but provide fallback if not available
+try:
+    import pyperclip
+    CLIPBOARD_AVAILABLE = True
+except ImportError:
+    CLIPBOARD_AVAILABLE = False
 
 # Page configuration
 st.set_page_config(
@@ -33,7 +39,9 @@ def load_models() -> List[str]:
     ]
 
 def copy_to_clipboard(text: str) -> bool:
-    """Copy text to clipboard"""
+    """Copy text to clipboard with fallback for environments where clipboard is not available"""
+    if not CLIPBOARD_AVAILABLE:
+        return False
     try:
         pyperclip.copy(text)
         return True
@@ -129,10 +137,11 @@ def main():
     
     with col2:
         if st.button("📋 Copy", help="Copy template to clipboard", key="copy_template"):
-            if copy_to_clipboard(template_text):
+            if CLIPBOARD_AVAILABLE and copy_to_clipboard(template_text):
                 st.sidebar.success("✅ Copied!")
             else:
-                st.sidebar.error("❌ Copy failed")
+                st.sidebar.info("📋 Copy to clipboard:")
+                st.sidebar.code(template_text)
     
     # User Input in Sidebar
     st.sidebar.subheader("✍️ User Input")
@@ -199,10 +208,11 @@ def main():
                 
                 # Copy final prompt button
                 if st.button("📋 Copy Final Prompt", key="copy_final_prompt"):
-                    if copy_to_clipboard(final_prompt):
+                    if CLIPBOARD_AVAILABLE and copy_to_clipboard(final_prompt):
                         st.success("✅ Final prompt copied to clipboard!")
                     else:
-                        st.error("❌ Failed to copy to clipboard")
+                        st.info("📋 Copy this prompt:")
+                        st.code(final_prompt)
     
     with col2:
         st.subheader("⚡ Model Output")
@@ -252,10 +262,11 @@ def main():
                         
                         # Copy response button
                         if st.button("📋 Copy Response", key="copy_response"):
-                            if copy_to_clipboard(generated_text):
+                            if CLIPBOARD_AVAILABLE and copy_to_clipboard(generated_text):
                                 st.success("✅ Response copied to clipboard!")
                             else:
-                                st.error("❌ Failed to copy to clipboard")
+                                st.info("📋 Copy this response:")
+                                st.code(generated_text)
                         
                         # Show generation info
                         st.caption(f"Generated with {selected_model} • Max tokens: 50 • Temperature: 0.7")
