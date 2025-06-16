@@ -33,7 +33,7 @@ streamlit run app.py
 
 - `sshleifer/tiny-gpt2` - Ultra-lightweight GPT-2 variant
 - `distilgpt2` - Distilled version of GPT-2
-- `google/flan-t5-small` - Small T5 model fine-tuned for instructions
+- `microsoft/DialoGPT-small` - Small conversational AI model
 
 ## 📁 Project Structure
 

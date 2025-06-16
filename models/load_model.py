@@ -28,10 +28,8 @@ def load_model(model_name: str) -> Optional[Any]:
         logger.info(f"Loading model: {model_name}")
         
         # Determine the task based on the model
-        if "t5" in model_name.lower() or "flan" in model_name.lower():
-            task = "text2text-generation"
-        else:
-            task = "text-generation"
+        # All supported models use text-generation task
+        task = "text-generation"
         
         # Load the model with CPU-only settings
         model_pipeline = pipeline(
@@ -121,11 +119,11 @@ def get_model_info(model_name: str) -> dict:
             "task": "text-generation",
             "description": "Distilled version of GPT-2, 2x faster, same performance"
         },
-        "google/flan-t5-small": {
-            "type": "FLAN-T5 Small",
-            "size": "~308MB", 
-            "task": "text2text-generation",
-            "description": "T5 model fine-tuned for instruction following"
+        "microsoft/DialoGPT-small": {
+            "type": "DialoGPT Small",
+            "size": "~353MB", 
+            "task": "text-generation",
+            "description": "Conversational AI model optimized for dialogue generation"
         }
     }
     

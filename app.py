@@ -27,7 +27,7 @@ def load_models() -> List[str]:
     return [
         "sshleifer/tiny-gpt2",
         "distilgpt2", 
-        "google/flan-t5-small"
+        "microsoft/DialoGPT-small"
     ]
 
 def main():
