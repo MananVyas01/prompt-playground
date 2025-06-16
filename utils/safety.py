@@ -2,7 +2,12 @@
 Safety utilities for the Prompt Playground
 """
 
-from better_profanity import profanity
+try:
+    from better_profanity import profanity
+    PROFANITY_AVAILABLE = True
+except ImportError:
+    PROFANITY_AVAILABLE = False
+    profanity = None
 
 
 def safe_format_prompt(user_input: str) -> str:
@@ -22,7 +27,7 @@ User: {user_input}
 Assistant:"""
 
 
-def filter_output(text: str) -> tuple[str, bool]:
+def filter_output(text: str):
     """
     Filter potentially inappropriate content from model output.
     
@@ -32,6 +37,9 @@ def filter_output(text: str) -> tuple[str, bool]:
     Returns:
         Tuple of (filtered_text, was_filtered)
     """
+    if not PROFANITY_AVAILABLE:
+        return text, False
+        
     # Load profanity filter if not already loaded
     if not hasattr(profanity, '_words'):
         profanity.load_censor_words()
@@ -42,7 +50,7 @@ def filter_output(text: str) -> tuple[str, bool]:
     return text, False
 
 
-def validate_input(user_input: str) -> tuple[str, bool]:
+def validate_input(user_input: str):
     """
     Validate user input for safety concerns.
     
@@ -61,7 +69,7 @@ def validate_input(user_input: str) -> tuple[str, bool]:
     # Check for potential prompt injection attempts
     injection_patterns = [
         "ignore previous instructions",
-        "forget your instructions",
+        "forget your instructions", 
         "act as if you are",
         "pretend to be",
     ]
