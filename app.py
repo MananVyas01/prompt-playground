@@ -1,7 +1,9 @@
 import streamlit as st
 import json
 import os
-from typing import Dict, List
+import time
+import difflib
+from typing import Dict, List, Tuple
 from models.load_model import load_model, generate_text, get_model_info
 from utils.prompt_formatter import format_prompt, validate_template, count_tokens_estimate
 
@@ -38,6 +40,36 @@ def load_models() -> List[str]:
         "microsoft/DialoGPT-small"
     ]
 
+def generate_with_timing(model_pipeline, prompt: str, max_new_tokens: int = 50) -> Tuple[str, float]:
+    """Generate text with timing information"""
+    start_time = time.time()
+    response = generate_text(model_pipeline, prompt, max_new_tokens)
+    end_time = time.time()
+    generation_time = end_time - start_time
+    return response, generation_time
+
+def highlight_differences(responses: List[str], model_names: List[str]) -> str:
+    """Generate HTML highlighting differences between responses"""
+    if len(responses) < 2:
+        return ""
+    
+    # Compare first two responses
+    diff = difflib.unified_diff(
+        responses[0].splitlines(keepends=True),
+        responses[1].splitlines(keepends=True),
+        fromfile=model_names[0],
+        tofile=model_names[1],
+        lineterm=''
+    )
+    
+    diff_text = ''.join(diff)
+    return diff_text if diff_text else "No significant differences detected."
+
+def get_response_color(index: int) -> str:
+    """Get color for response card based on index"""
+    colors = ["#e8f4f8", "#f0f8e8", "#f8f0e8", "#f4e8f8", "#e8f8f4"]
+    return colors[index % len(colors)]
+
 def copy_to_clipboard(text: str) -> bool:
     """Copy text to clipboard with fallback for environments where clipboard is not available"""
     if not CLIPBOARD_AVAILABLE:
@@ -64,10 +96,12 @@ def main():
         st.session_state.template_text = ""
     if 'user_input' not in st.session_state:
         st.session_state.user_input = ""
-    if 'last_generated_response' not in st.session_state:
-        st.session_state.last_generated_response = ""
-    if 'last_model_used' not in st.session_state:
-        st.session_state.last_model_used = ""
+    if 'selected_models' not in st.session_state:
+        st.session_state.selected_models = ["sshleifer/tiny-gpt2"]
+    if 'model_responses' not in st.session_state:
+        st.session_state.model_responses = {}
+    if 'last_comparison_prompt' not in st.session_state:
+        st.session_state.last_comparison_prompt = ""
     
     # Sidebar
     st.sidebar.header("⚙️ Configuration")
@@ -93,12 +127,38 @@ def main():
         st.sidebar.error("No prompt types available")
         return
     
-    # Model Selector
-    selected_model = st.sidebar.selectbox(
-        "🤖 Model",
+    # Model Selector (Multi-select)
+    selected_models = st.sidebar.multiselect(
+        "🤖 Select Models to Compare",
         models,
-        help="Choose a lightweight model optimized for CPU inference"
+        default=st.session_state.selected_models,
+        help="Choose up to 3 models for comparison (memory limit)",
+        max_selections=3
     )
+    
+    # Update session state
+    if selected_models != st.session_state.selected_models:
+        st.session_state.selected_models = selected_models
+        # Clear previous responses when models change
+        st.session_state.model_responses = {}
+    
+    # Warning if no models selected
+    if not selected_models:
+        st.sidebar.warning("⚠️ Please select at least one model")
+        return
+    
+    # Show selected models info
+    if len(selected_models) > 1:
+        st.sidebar.info(f"📊 Comparing {len(selected_models)} models")
+    
+    # Show model info for selected models
+    with st.sidebar.expander("🤖 Selected Models Info"):
+        for model in selected_models:
+            model_info = get_model_info(model)
+            st.write(f"**{model}**")
+            st.write(f"- Type: {model_info['type']}")
+            st.write(f"- Size: {model_info['size']}")
+            st.write("---")
     
     # Sidebar spacing
     st.sidebar.markdown("---")
@@ -164,12 +224,28 @@ def main():
     st.session_state.user_input = user_input
     
     # Submit Button
-    submit_button = st.sidebar.button("🚀 Generate", type="primary", key="generate_btn")
+    submit_button = st.sidebar.button("🚀 Generate Comparison", type="primary", key="generate_btn")
     
-    # Regenerate Button (only show if there's a previous response)
+    # Regenerate Button (only show if there are previous responses)
     regenerate_button = False
-    if st.session_state.last_generated_response and st.session_state.last_model_used == selected_model:
-        regenerate_button = st.sidebar.button("🔄 Regenerate Response", key="regenerate_btn")
+    if (st.session_state.model_responses and 
+        st.session_state.last_comparison_prompt and
+        set(selected_models) == set(st.session_state.model_responses.keys())):
+        regenerate_button = st.sidebar.button("🔄 Regenerate All", key="regenerate_btn")
+    
+    # Add comparison options
+    st.sidebar.markdown("---")
+    st.sidebar.subheader("🔍 Comparison Options")
+    show_differences = st.sidebar.checkbox(
+        "🔍 Highlight Differences", 
+        value=False,
+        help="Show textual differences between model responses"
+    )
+    show_timing = st.sidebar.checkbox(
+        "⏱️ Show Generation Time", 
+        value=True,
+        help="Display how long each model took to generate"
+    )
     
     # Main Panel
     col1, col2 = st.columns([1, 1])
@@ -215,17 +291,9 @@ def main():
                         st.code(final_prompt)
     
     with col2:
-        st.subheader("⚡ Model Output")
+        st.subheader("⚡ Model Comparison Results")
         
-        # Show model info
-        model_info = get_model_info(selected_model)
-        with st.expander("🤖 Model Information"):
-            st.write(f"**Type:** {model_info['type']}")
-            st.write(f"**Size:** {model_info['size']}")
-            st.write(f"**Task:** {model_info['task']}")
-            st.write(f"**Description:** {model_info['description']}")
-        
-        # Handle generation
+        # Handle generation for multiple models
         if submit_button or regenerate_button:
             if not user_input.strip():
                 st.warning("⚠️ Please enter some input text first!")
@@ -233,54 +301,154 @@ def main():
                 st.warning("⚠️ Please provide a template!")
             elif not is_valid:
                 st.error(f"⚠️ Template error: {error_msg}")
+            elif not selected_models:
+                st.warning("⚠️ Please select at least one model!")
             else:
                 # Get the final prompt
                 final_prompt = format_prompt(template_text, user_input.strip())
+                st.session_state.last_comparison_prompt = final_prompt
                 
                 # Show what we're generating
-                st.write("**📝 Generating for:**")
+                st.write("**📝 Prompt for all models:**")
                 st.code(final_prompt, language="text")
                 
-                # Load model and generate text
-                with st.spinner(f"Loading {selected_model}..."):
-                    model_pipeline = load_model(selected_model)
+                # Initialize responses dictionary
+                st.session_state.model_responses = {}
                 
-                if model_pipeline is not None:
-                    with st.spinner("Generating response..."):
-                        generated_text = generate_text(model_pipeline, final_prompt, max_new_tokens=50)
+                # Generate responses for each model
+                progress_bar = st.progress(0)
+                total_models = len(selected_models)
+                
+                for i, model_name in enumerate(selected_models):
+                    progress_bar.progress((i) / total_models)
                     
-                    # Display results
-                    st.write("**🤖 Generated Response:**")
-                    if generated_text.startswith("❌"):
-                        st.error(generated_text)
+                    with st.spinner(f"Loading {model_name}..."):
+                        model_pipeline = load_model(model_name)
+                    
+                    if model_pipeline is not None:
+                        with st.spinner(f"Generating with {model_name}..."):
+                            response, gen_time = generate_with_timing(
+                                model_pipeline, final_prompt, max_new_tokens=50
+                            )
+                            st.session_state.model_responses[model_name] = {
+                                'response': response,
+                                'time': gen_time
+                            }
                     else:
-                        st.success(generated_text)
-                        
-                        # Store in session state for regeneration
-                        st.session_state.last_generated_response = generated_text
-                        st.session_state.last_model_used = selected_model
-                        
-                        # Copy response button
-                        if st.button("📋 Copy Response", key="copy_response"):
-                            if CLIPBOARD_AVAILABLE and copy_to_clipboard(generated_text):
-                                st.success("✅ Response copied to clipboard!")
-                            else:
-                                st.info("📋 Copy to clipboard:")
-                                st.code(generated_text)
-                        
-                        # Show generation info
-                        st.caption(f"Generated with {selected_model} • Max tokens: 50 • Temperature: 0.7")
-                else:
-                    st.error("❌ Failed to load the selected model. Please try a different model.")
+                        st.session_state.model_responses[model_name] = {
+                            'response': f"❌ Failed to load {model_name}",
+                            'time': 0
+                        }
+                
+                progress_bar.progress(1.0)
+                st.success(f"✅ Generated responses from {total_models} models!")
         
-        # Show last response if available
-        elif st.session_state.last_generated_response:
-            st.write("**🤖 Last Generated Response:**")
-            st.info(st.session_state.last_generated_response)
-            st.caption(f"Generated with {st.session_state.last_model_used}")
+        # Display comparison results
+        if st.session_state.model_responses:
+            st.markdown("---")
+            
+            # Show responses in columns
+            if len(st.session_state.model_responses) == 1:
+                # Single model - use full width
+                model_name = list(st.session_state.model_responses.keys())[0]
+                response_data = st.session_state.model_responses[model_name]
+                
+                st.write(f"**🤖 {model_name}**")
+                
+                if show_timing:
+                    st.caption(f"⏱️ Generation time: {response_data['time']:.2f}s")
+                
+                if response_data['response'].startswith("❌"):
+                    st.error(response_data['response'])
+                else:
+                    st.success(response_data['response'])
+                
+            else:
+                # Multiple models - use columns
+                cols = st.columns(len(st.session_state.model_responses))
+                
+                for i, (model_name, response_data) in enumerate(st.session_state.model_responses.items()):
+                    with cols[i]:
+                        # Model header with color
+                        bg_color = get_response_color(i)
+                        st.markdown(
+                            f"""<div style="background-color: {bg_color}; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+                            <h4 style="margin: 0; color: #333;">🤖 {model_name}</h4>
+                            </div>""", 
+                            unsafe_allow_html=True
+                        )
+                        
+                        if show_timing:
+                            st.caption(f"⏱️ {response_data['time']:.2f}s")
+                        
+                        # Response
+                        if response_data['response'].startswith("❌"):
+                            st.error(response_data['response'])
+                        else:
+                            st.markdown(f"**Response:**")
+                            st.code(response_data['response'], language="text")
+                        
+                        # Model info
+                        model_info = get_model_info(model_name)
+                        st.caption(f"📊 {model_info['type']} • {model_info['size']}")
+            
+            # Show differences if requested and multiple models
+            if show_differences and len(st.session_state.model_responses) > 1:
+                st.markdown("---")
+                st.subheader("🔍 Response Differences")
+                
+                responses = [data['response'] for data in st.session_state.model_responses.values()]
+                model_names = list(st.session_state.model_responses.keys())
+                
+                if len(set(responses)) == 1:
+                    st.info("💡 All models generated identical responses!")
+                else:
+                    diff_text = highlight_differences(responses, model_names)
+                    if diff_text and diff_text != "No significant differences detected.":
+                        st.code(diff_text, language="diff")
+                    else:
+                        st.info("💡 No significant differences detected between responses.")
+            
+            # Comparison analytics
+            if len(st.session_state.model_responses) > 1:
+                st.markdown("---")
+                st.subheader("📊 Comparison Analytics")
+                
+                # Response lengths
+                lengths = {name: len(data['response']) for name, data in st.session_state.model_responses.items()}
+                fastest_model = min(st.session_state.model_responses.keys(), 
+                                  key=lambda x: st.session_state.model_responses[x]['time'])
+                longest_response = max(lengths.keys(), key=lambda x: lengths[x])
+                
+                col_a, col_b = st.columns(2)
+                with col_a:
+                    st.metric("🏃 Fastest Model", fastest_model, 
+                            f"{st.session_state.model_responses[fastest_model]['time']:.2f}s")
+                with col_b:
+                    st.metric("📝 Longest Response", longest_response, 
+                            f"{lengths[longest_response]} chars")
+            
+            # Copy all responses button
+            if st.button("📋 Copy All Responses", key="copy_all_responses"):
+                all_responses = []
+                for model_name, response_data in st.session_state.model_responses.items():
+                    all_responses.append(f"=== {model_name} ===\n{response_data['response']}\n")
+                
+                combined_text = "\n".join(all_responses)
+                if CLIPBOARD_AVAILABLE and copy_to_clipboard(combined_text):
+                    st.success("✅ All responses copied to clipboard!")
+                else:
+                    st.info("📋 Copy to clipboard:")
+                    st.code(combined_text)
         
         else:
-            st.info("Configure your prompt and click 'Generate' to see the output")
+            st.info("Select models and click 'Generate Comparison' to see results")
+            
+            if selected_models:
+                st.write("**Selected models for comparison:**")
+                for model in selected_models:
+                    model_info = get_model_info(model)
+                    st.write(f"• **{model}** - {model_info['type']} ({model_info['size']})")
 
 if __name__ == "__main__":
     main()
