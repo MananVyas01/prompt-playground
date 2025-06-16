@@ -12,6 +12,7 @@ from utils.prompt_formatter import (
     validate_template,
     count_tokens_estimate,
 )
+from utils.safety import safe_format_prompt, filter_output, validate_input
 
 # Try to import pyperclip, but provide fallback if not available
 try:
@@ -147,12 +148,14 @@ def load_prompt_types() -> Dict:
 
 
 def load_models() -> List[str]:
-    """Return list of available models"""
+    """Return list of available models with safety indicators"""
     return [
-        "sshleifer/tiny-gpt2",
-        "distilgpt2",
-        "microsoft/DialoGPT-small",
-        "gpt2",  # Added standard GPT-2 for comparison
+        "google/flan-t5-small",  # Safe, instruction-tuned model
+        "tiiuae/falcon-rw-1b",   # Safe, curated training data
+        "EleutherAI/pythia-70m", # Safer, smaller research model
+        "distilgpt2 (⚠️ unfiltered)", # Warning for unfiltered model
+        "sshleifer/tiny-gpt2 (⚠️ may generate NSFW text)", # Warning for potential NSFW
+        "microsoft/DialoGPT-small", # Conversational, relatively safe
     ]
 
 
@@ -165,6 +168,21 @@ def copy_to_clipboard(text: str) -> bool:
         return True
     except:
         return False
+
+
+def get_actual_model_name(display_name: str) -> str:
+    """Convert display name to actual model name for loading"""
+    model_mapping = {
+        "distilgpt2 (⚠️ unfiltered)": "distilgpt2",
+        "sshleifer/tiny-gpt2 (⚠️ may generate NSFW text)": "sshleifer/tiny-gpt2",
+        # Other models use their display name as actual name
+    }
+    return model_mapping.get(display_name, display_name)
+
+
+def is_unsafe_model(model_name: str) -> bool:
+    """Check if a model is marked as potentially unsafe"""
+    return "⚠️" in model_name
 
 
 def main():
@@ -265,7 +283,7 @@ def main():
     selected_models = st.sidebar.multiselect(
         "🤖 Select Models (2-3 max)",
         models,
-        default=["sshleifer/tiny-gpt2"],
+        default=["google/flan-t5-small"],  # Default to safer model
         max_selections=3,
         help="Choose up to 3 lightweight models for comparison",
     )
@@ -275,6 +293,14 @@ def main():
         st.sidebar.warning("⚠️ Please select max 3 models to avoid memory issues")
     elif len(selected_models) == 0:
         st.sidebar.warning("⚠️ Please select at least one model")
+    
+    # Safety warnings for unsafe models
+    unsafe_models = [model for model in selected_models if is_unsafe_model(model)]
+    if unsafe_models:
+        st.sidebar.warning(
+            f"⚠️ **Safety Notice**: You selected unfiltered model(s): {', '.join(unsafe_models)}. "
+            "Output may contain inappropriate or NSFW content."
+        )
 
     # Sidebar spacing
     st.sidebar.markdown("---")
@@ -346,6 +372,13 @@ def main():
 
     # Update session state
     st.session_state.user_input = user_input
+    
+    # Input validation
+    validation_message, is_valid_input = validate_input(user_input)
+    if validation_message and not is_valid_input:
+        st.sidebar.error(validation_message)
+    elif validation_message and is_valid_input:
+        st.sidebar.info(validation_message)
 
     # Submit Button
     submit_button = st.sidebar.button("🚀 Generate", type="primary", key="generate_btn")
@@ -437,9 +470,12 @@ def main():
                 st.error(f"⚠️ Template error: {error_msg}")
             elif not selected_models:
                 st.warning("⚠️ Please select at least one model!")
+            elif not is_valid_input:
+                st.error("⚠️ Please fix input validation issues before generating!")
             else:
-                # Get the final prompt
-                final_prompt = format_prompt(template_text, user_input.strip())
+                # Create safe prompt - use safe formatting for better control
+                raw_prompt = format_prompt(template_text, user_input.strip())
+                final_prompt = safe_format_prompt(raw_prompt)
 
                 # Show what we're generating
                 st.write("**📝 Generating for:**")
@@ -454,26 +490,36 @@ def main():
                 status_text = st.empty()
 
                 for i, model_name in enumerate(selected_models):
-                    status_text.text(f"Loading {model_name}...")
+                    # Get the actual model name for loading
+                    actual_model_name = get_actual_model_name(model_name)
+                    status_text.text(f"Loading {actual_model_name}...")
                     progress_bar.progress((i) / len(selected_models))
 
                     # Load model
-                    with st.spinner(f"Loading {model_name}..."):
-                        model_pipeline = load_model(model_name)
+                    with st.spinner(f"Loading {actual_model_name}..."):
+                        model_pipeline = load_model(actual_model_name)
 
                     if model_pipeline is not None:
-                        status_text.text(f"Generating with {model_name}...")
+                        status_text.text(f"Generating with {actual_model_name}...")
 
                         # Time the generation
                         start_time = time.time()
-                        with st.spinner(f"Generating with {model_name}..."):
-                            generated_text = generate_text(
+                        with st.spinner(f"Generating with {actual_model_name}..."):
+                            raw_generated_text = generate_text(
                                 model_pipeline, final_prompt, max_new_tokens=50
                             )
                         end_time = time.time()
 
-                        model_responses[model_name] = generated_text
+                        # Apply safety filtering
+                        filtered_text, was_filtered = filter_output(raw_generated_text)
+                        
+                        # Store the filtered result
+                        model_responses[model_name] = filtered_text
                         generation_times[model_name] = end_time - start_time
+                        
+                        # Log if content was filtered (for debugging)
+                        if was_filtered:
+                            print(f"Content filtered for model {model_name}")
                     else:
                         model_responses[model_name] = "❌ Failed to load model"
                         generation_times[model_name] = 0
