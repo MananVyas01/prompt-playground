@@ -252,7 +252,7 @@ def test_safety_features():
 <div align="center">
 
 ### **Manan Vyas** 🧠
-*Senior AI Engineer & Prompt Engineering Specialist*
+*AI/ML Enthusiastic & Certified Prompt Engineer from OPENAI*
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue.svg)](https://linkedin.com/in/mananvyas0110)
 [![GitHub](https://img.shields.io/badge/GitHub-Follow-black.svg)](https://github.com/MananVyas01)
