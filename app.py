@@ -152,11 +152,11 @@ def load_models() -> List[str]:
     return [
         "FakeGPT (🔧 Simulator - Fastest & Safest)",  # Simulator mode
         "google/flan-t5-small",  # Safe, instruction-tuned model
-        "tiiuae/falcon-rw-1b",   # Safe, curated training data
-        "EleutherAI/pythia-70m", # Safer, smaller research model
-        "distilgpt2 (⚠️ unfiltered)", # Warning for unfiltered model
-        "sshleifer/tiny-gpt2 (⚠️ may generate NSFW text)", # Warning for potential NSFW
-        "microsoft/DialoGPT-small", # Conversational, relatively safe
+        "tiiuae/falcon-rw-1b",  # Safe, curated training data
+        "EleutherAI/pythia-70m",  # Safer, smaller research model
+        "distilgpt2 (⚠️ unfiltered)",  # Warning for unfiltered model
+        "sshleifer/tiny-gpt2 (⚠️ may generate NSFW text)",  # Warning for potential NSFW
+        "microsoft/DialoGPT-small",  # Conversational, relatively safe
     ]
 
 
@@ -285,7 +285,9 @@ def main():
     selected_models = st.sidebar.multiselect(
         "🤖 Select Models (2-3 max)",
         models,
-        default=["FakeGPT (🔧 Simulator - Fastest & Safest)"],  # Default to safer simulator
+        default=[
+            "FakeGPT (🔧 Simulator - Fastest & Safest)"
+        ],  # Default to safer simulator
         max_selections=3,
         help="Choose up to 3 lightweight models for comparison",
     )
@@ -295,7 +297,7 @@ def main():
         st.sidebar.warning("⚠️ Please select max 3 models to avoid memory issues")
     elif len(selected_models) == 0:
         st.sidebar.warning("⚠️ Please select at least one model")
-    
+
     # Safety warnings for unsafe models
     unsafe_models = [model for model in selected_models if is_unsafe_model(model)]
     if unsafe_models:
@@ -307,7 +309,9 @@ def main():
     # FakeGPT simulator mode info
     fake_models = [model for model in selected_models if "FakeGPT" in model]
     if fake_models:
-        st.sidebar.info("🧪 You are using FakeGPT – a simulated LLM for safe, fast testing.")
+        st.sidebar.info(
+            "🧪 You are using FakeGPT – a simulated LLM for safe, fast testing."
+        )
 
     # Sidebar spacing
     st.sidebar.markdown("---")
@@ -379,7 +383,7 @@ def main():
 
     # Update session state
     st.session_state.user_input = user_input
-    
+
     # Input validation
     validation_message, is_valid_input = validate_input(user_input)
     if validation_message and not is_valid_input:
@@ -523,11 +527,11 @@ def main():
 
                         # Apply safety filtering
                         filtered_text, was_filtered = filter_output(raw_generated_text)
-                        
+
                         # Store the filtered result
                         model_responses[model_name] = filtered_text
                         generation_times[model_name] = end_time - start_time
-                        
+
                         # Log if content was filtered (for debugging)
                         if was_filtered:
                             print(f"Content filtered for model {model_name}")
@@ -546,7 +550,7 @@ def main():
                 # Save to session memory if enabled
                 save_to_session_memory(
                     selected_prompt_type,
-                    user_input_value,
+                    user_input,
                     final_prompt,
                     selected_models,
                     model_responses,
@@ -655,7 +659,7 @@ def main():
                     # Create download content
                     txt_content = create_download_content(
                         selected_prompt_type,
-                        user_input_value,
+                        user_input,
                         final_prompt,
                         selected_models,
                         model_responses,
@@ -673,7 +677,7 @@ def main():
                 with export_col2:
                     md_content = create_download_content(
                         selected_prompt_type,
-                        user_input_value,
+                        user_input,
                         final_prompt,
                         selected_models,
                         model_responses,
