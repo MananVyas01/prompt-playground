@@ -13,7 +13,7 @@
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Production Ready](https://img.shields.io/badge/Production-Ready-brightgreen.svg)](https://github.com/MananVyas01/prompt-engineering-studio)
 
-**[🚀 Live Demo](https://prompt-engineering-studio.streamlit.app)** • **[📚 Documentation](#-documentation)** • **[🎯 Features](#-professional-features)** • **[⚙️ Installation](#%EF%B8%8F-quick-start)**
+**[📚 Documentation](#-documentation)** • **[🎯 Features](#-professional-features)** • **[⚙️ Installation](#%EF%B8%8F-quick-start)**
 
 </div>
 
@@ -111,15 +111,15 @@ graph TB
 
 ```bash
 # One-command deployment
-docker run -p 8501:8501 mananvyas01/prompt-engineering-studio:latest
+docker run -p 8501:8501 mananvyas01/prompt-playground:latest
 ```
 
 ### 🔧 **Development Setup**
 
 ```bash
 # Professional development environment
-git clone https://github.com/MananVyas01/prompt-engineering-studio.git
-cd prompt-engineering-studio
+git clone https://github.com/MananVyas01/prompt-playground.git
+cd prompt-playground
 
 # Virtual environment (best practice)
 python -m venv venv && source venv/bin/activate
@@ -254,9 +254,8 @@ def test_safety_features():
 ### **Manan Vyas** 🧠
 *Senior AI Engineer & Prompt Engineering Specialist*
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue.svg)](https://linkedin.com/in/manan-vyas)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue.svg)](https://linkedin.com/in/mananvyas0110)
 [![GitHub](https://img.shields.io/badge/GitHub-Follow-black.svg)](https://github.com/MananVyas01)
-[![Portfolio](https://img.shields.io/badge/Portfolio-Visit-green.svg)](https://mananvyas.dev)
 
 </div>
 
@@ -276,7 +275,7 @@ def test_safety_features():
 
 ```bash
 # Contribute to the future of AI
-git clone https://github.com/MananVyas01/prompt-engineering-studio.git
+git clone https://github.com/MananVyas01/prompt-playground.git
 git checkout -b feature/your-amazing-idea
 # Make your mark on the AI industry
 git commit -m "feat: revolutionary improvement"
@@ -298,7 +297,7 @@ git push origin feature/your-amazing-idea
 
 ### 🚀 **Ready to Transform Your AI Workflow?**
 
-**[📧 Email](mailto:manan.vyas@example.com)** • **[💼 LinkedIn](https://linkedin.com/in/manan-vyas)** • **[🐦 Twitter](https://twitter.com/MananVyas01)**
+**[📧 Email](mailto:mananvyas.work@gmail.com)** • **[💼 LinkedIn](https://linkedin.com/in/mananvyas0110)** • **[🐦 Twitter](https://twitter.com/MananVyas01)**
 
 ### 🎯 **For HR & Recruiting**
 
