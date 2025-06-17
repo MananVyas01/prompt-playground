@@ -8,6 +8,7 @@ from transformers import pipeline
 import torch
 from typing import Optional, Any
 import logging
+from models.fake_llm import fake_llm
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -27,6 +28,10 @@ def load_model(model_name: str) -> Optional[Any]:
     """
     try:
         logger.info(f"Loading model: {model_name}")
+
+        # Handle FakeGPT simulator
+        if model_name.lower() == "fakegpt":
+            return fake_llm
 
         # Determine the task based on the model
         # All supported models use text-generation task
