@@ -304,6 +304,11 @@ def main():
             "Output may contain inappropriate or NSFW content."
         )
 
+    # FakeGPT simulator mode info
+    fake_models = [model for model in selected_models if "FakeGPT" in model]
+    if fake_models:
+        st.sidebar.info("🧪 You are using FakeGPT – a simulated LLM for safe, fast testing.")
+
     # Sidebar spacing
     st.sidebar.markdown("---")
 

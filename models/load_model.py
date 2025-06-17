@@ -115,6 +115,12 @@ def get_model_info(model_name: str) -> dict:
         dict: Model information
     """
     model_info = {
+        "fakegpt": {
+            "type": "FakeGPT Simulator",
+            "size": "~0MB",
+            "task": "text-generation",
+            "description": "Simulated LLM responses for safe, fast testing",
+        },
         "sshleifer/tiny-gpt2": {
             "type": "GPT-2 (Tiny)",
             "size": "~40MB",
