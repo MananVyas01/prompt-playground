@@ -6,7 +6,17 @@ import difflib
 import base64
 from datetime import datetime
 from typing import Dict, List
-from models.load_model import load_model, generate_text, get_model_info
+frodef load_models() -> List[str]:
+    """Return list of available models with safety indicators"""
+    return [
+        "FakeGPT (🔧 Prompt Refiner - Improves Your Input)",  # Prompt refiner mode
+        "google/flan-t5-small",  # Safe, instruction-tuned model
+        "tiiuae/falcon-rw-1b",   # Safe, curated training data
+        "EleutherAI/pythia-70m", # Safer, smaller research model
+        "distilgpt2 (⚠️ unfiltered)", # Warning for unfiltered model
+        "sshleifer/tiny-gpt2 (⚠️ may generate NSFW text)", # Warning for potential NSFW
+        "microsoft/DialoGPT-small", # Conversational, relatively safe
+    ]ad_model import load_model, generate_text, get_model_info
 from utils.prompt_formatter import (
     format_prompt,
     validate_template,
@@ -174,7 +184,7 @@ def copy_to_clipboard(text: str) -> bool:
 def get_actual_model_name(display_name: str) -> str:
     """Convert display name to actual model name for loading"""
     model_mapping = {
-        "FakeGPT (🔧 Simulator - Fastest & Safest)": "fakegpt",
+        "FakeGPT (🔧 Prompt Refiner - Improves Your Input)": "fakegpt",
         "distilgpt2 (⚠️ unfiltered)": "distilgpt2",
         "sshleifer/tiny-gpt2 (⚠️ may generate NSFW text)": "sshleifer/tiny-gpt2",
         # Other models use their display name as actual name
@@ -286,8 +296,8 @@ def main():
         "🤖 Select Models (2-3 max)",
         models,
         default=[
-            "FakeGPT (🔧 Simulator - Fastest & Safest)"
-        ],  # Default to safer simulator
+            "FakeGPT (🔧 Prompt Refiner - Improves Your Input)"
+        ],  # Default to prompt refiner
         max_selections=3,
         help="Choose up to 3 lightweight models for comparison",
     )
@@ -310,7 +320,7 @@ def main():
     fake_models = [model for model in selected_models if "FakeGPT" in model]
     if fake_models:
         st.sidebar.info(
-            "🧪 You are using FakeGPT – a simulated LLM for safe, fast testing."
+            "🔧 You are using FakeGPT – a prompt refiner that improves your input for better LLM responses."
         )
 
     # Sidebar spacing
