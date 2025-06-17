@@ -150,12 +150,17 @@ def load_prompt_types() -> Dict:
 def load_models() -> List[str]:
     """Return list of available prompt optimization tools and models"""
     return [
-        "Prompt Refiner (🔧 AI-Powered Optimization)",  # Main prompt refiner
-        "Prompt Analyzer (📊 Structure Analysis)",      # Analyzes prompt structure
-        "Few-Shot Generator (📝 Example Creator)",       # Creates few-shot examples
-        "Chain-of-Thought Builder (🧠 Reasoning Guide)", # Builds CoT prompts
-        "google/flan-t5-small (🤖 Validation Model)",   # For testing refined prompts
-        "distilgpt2 (⚠️ Baseline Comparison)",          # Baseline for comparison
+        "Prompt Refiner (🔧 AI-Powered Optimization)",      # Main prompt refiner
+        "Prompt Analyzer (📊 Structure Analysis)",          # Analyzes prompt structure
+        "Few-Shot Generator (📝 Example Creator)",           # Creates few-shot examples
+        "Chain-of-Thought Builder (🧠 Reasoning Guide)",     # Builds CoT prompts
+        "--- VALIDATION MODELS ---",                        # Separator
+        "google/flan-t5-small (🤖 Instruction-Tuned)",     # For testing refined prompts
+        "microsoft/DialoGPT-small (💬 Conversational)",     # Dialogue testing
+        "distilgpt2 (⚠️ Baseline Comparison)",              # Baseline for comparison
+        "--- ENTERPRISE MODELS (Optional) ---",             # Future expansion
+        # "gpt-3.5-turbo-instruct (🏢 Enterprise API)",     # API-based testing
+        # "claude-instant (⚡ Professional API)",           # Alternative API testing
     ]
 
 
@@ -177,11 +182,16 @@ def get_actual_model_name(display_name: str) -> str:
         "Prompt Analyzer (📊 Structure Analysis)": "prompt_analyzer", 
         "Few-Shot Generator (📝 Example Creator)": "few_shot_generator",
         "Chain-of-Thought Builder (🧠 Reasoning Guide)": "cot_builder",
-        "google/flan-t5-small (🤖 Validation Model)": "google/flan-t5-small",
+        "google/flan-t5-small (🤖 Instruction-Tuned)": "google/flan-t5-small",
+        "microsoft/DialoGPT-small (💬 Conversational)": "microsoft/DialoGPT-small",
         "distilgpt2 (⚠️ Baseline Comparison)": "distilgpt2",
+        # Separators are ignored
+        "--- VALIDATION MODELS ---": None,
+        "--- ENTERPRISE MODELS (Optional) ---": None,
         # Other models use their display name as actual name
     }
-    return model_mapping.get(display_name, display_name)
+    actual_name = model_mapping.get(display_name, display_name)
+    return actual_name if actual_name is not None else display_name
 
 
 def is_unsafe_model(model_name: str) -> bool:
@@ -283,10 +293,13 @@ def main():
         st.sidebar.error("No prompt types available")
         return
 
+    # Filter out separator lines for the multiselect
+    selectable_models = [model for model in models if not model.startswith("---")]
+    
     # Prompt Engineering Tools Selector
     selected_models = st.sidebar.multiselect(
         "🔧 Select Prompt Engineering Tools",
-        models,
+        selectable_models,
         default=[
             "Prompt Refiner (🔧 AI-Powered Optimization)"
         ],  # Default to prompt refiner
