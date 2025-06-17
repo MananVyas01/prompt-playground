@@ -150,6 +150,7 @@ def load_prompt_types() -> Dict:
 def load_models() -> List[str]:
     """Return list of available models with safety indicators"""
     return [
+        "FakeGPT (🔧 Simulator - Fastest & Safest)",  # Simulator mode
         "google/flan-t5-small",  # Safe, instruction-tuned model
         "tiiuae/falcon-rw-1b",   # Safe, curated training data
         "EleutherAI/pythia-70m", # Safer, smaller research model
@@ -173,6 +174,7 @@ def copy_to_clipboard(text: str) -> bool:
 def get_actual_model_name(display_name: str) -> str:
     """Convert display name to actual model name for loading"""
     model_mapping = {
+        "FakeGPT (🔧 Simulator - Fastest & Safest)": "fakegpt",
         "distilgpt2 (⚠️ unfiltered)": "distilgpt2",
         "sshleifer/tiny-gpt2 (⚠️ may generate NSFW text)": "sshleifer/tiny-gpt2",
         # Other models use their display name as actual name
@@ -283,7 +285,7 @@ def main():
     selected_models = st.sidebar.multiselect(
         "🤖 Select Models (2-3 max)",
         models,
-        default=["google/flan-t5-small"],  # Default to safer model
+        default=["FakeGPT (🔧 Simulator - Fastest & Safest)"],  # Default to safer simulator
         max_selections=3,
         help="Choose up to 3 lightweight models for comparison",
     )

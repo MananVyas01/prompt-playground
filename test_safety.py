@@ -16,7 +16,7 @@ def test_safety_features():
     
     # Test 1: Safe prompt formatting
     print("\n1. Testing Safe Prompt Formatting:")
-    test_input = "Hello world"
+    test_input = "what programer use to write code"
     safe_prompt = safe_format_prompt(test_input)
     print(f"Input: {test_input}")
     print(f"Safe Prompt: {safe_prompt}")
