@@ -90,7 +90,7 @@ def create_download_content(
 ):
     """Create downloadable content in specified format"""
     if format_type == "txt":
-        content = f"""PROMPT PLAYGROUND EXPORT
+        content = f"""PROMPT ENGINEERING STUDIO EXPORT
 {'='*50}
 
 Timestamp: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
@@ -113,7 +113,7 @@ Model Responses:
             content += "-" * 30 + "\n"
 
     elif format_type == "md":
-        content = f"""# 🧠 Prompt Playground Export
+        content = f"""# 🧠 Prompt Engineering Studio Export
 
 **Timestamp:** {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}  
 **Prompt Type:** {prompt_type}  
@@ -688,7 +688,7 @@ def main():
                     st.download_button(
                         label="📄 Download as TXT",
                         data=txt_content,
-                        file_name=f"prompt_playground_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt",
+                        file_name=f"prompt_engineering_studio_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt",
                         mime="text/plain",
                         on_click=lambda: st.toast("📄 TXT export ready!", icon="✅"),
                     )
@@ -706,7 +706,7 @@ def main():
                     st.download_button(
                         label="📝 Download as Markdown",
                         data=md_content,
-                        file_name=f"prompt_playground_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md",
+                        file_name=f"prompt_engineering_studio_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md",
                         mime="text/markdown",
                         on_click=lambda: st.toast(
                             "📝 Markdown export ready!", icon="✅"
@@ -758,7 +758,7 @@ def main():
                     st.download_button(
                         label="📄 Download as TXT",
                         data=txt_content,
-                        file_name=f"prompt_playground_last_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt",
+                        file_name=f"prompt_engineering_studio_last_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt",
                         mime="text/plain",
                     )
 
@@ -775,7 +775,7 @@ def main():
                     st.download_button(
                         label="📝 Download as Markdown",
                         data=md_content,
-                        file_name=f"prompt_playground_last_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md",
+                        file_name=f"prompt_engineering_studio_last_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md",
                         mime="text/markdown",
                     )
 

@@ -1,6 +1,6 @@
 """
-Prompt formatting utilities for the Prompt Playground app.
-Handles template processing, placeholder replacement, and prompt formatting.
+Prompt formatting utilities for the Prompt Engineering Studio.
+Handles template processing, placeholder replacement, and professional prompt formatting.
 """
 
 import re

@@ -1,6 +1,6 @@
 """
-Models package for Prompt Playground.
-Contains utilities for loading and using Hugging Face models.
+Models package for Prompt Engineering Studio.
+Contains utilities for loading models and professional prompt engineering tools.
 """
 
 from .load_model import load_model, generate_text, get_model_info

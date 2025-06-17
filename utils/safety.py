@@ -1,5 +1,5 @@
 """
-Safety utilities for the Prompt Playground
+Safety utilities for the Prompt Engineering Studio
 """
 
 try:
@@ -14,7 +14,7 @@ except ImportError:
 def safe_format_prompt(user_input: str) -> str:
     """
     Wrap user input in a safe, instruction-style template to encourage
-    helpful and appropriate responses.
+    helpful and appropriate responses for prompt engineering tasks.
 
     Args:
         user_input: The raw user input
@@ -22,7 +22,7 @@ def safe_format_prompt(user_input: str) -> str:
     Returns:
         Formatted prompt with safety guidelines
     """
-    return f"""You are a helpful assistant. Respond clearly and politely.
+    return f"""You are a professional prompt engineering assistant. Respond clearly and professionally.
 
 User: {user_input}
 Assistant:"""

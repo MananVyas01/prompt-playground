@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test script for safety features in Prompt Playground
+Test script for safety features in Prompt Engineering Studio
 """
 
 import sys
@@ -13,7 +13,7 @@ from utils.safety import safe_format_prompt, filter_output, validate_input
 
 def test_safety_features():
     """Test all safety features"""
-    print("🧪 Testing Prompt Playground Safety Features")
+    print("🧪 Testing Prompt Engineering Studio Safety Features")
     print("=" * 50)
 
     # Test 1: Safe prompt formatting
@@ -22,7 +22,7 @@ def test_safety_features():
     safe_prompt = safe_format_prompt(test_input)
     print(f"Input: {test_input}")
     print(f"Safe Prompt: {safe_prompt}")
-    assert "You are a helpful assistant" in safe_prompt
+    assert "You are a professional prompt engineering assistant" in safe_prompt
     assert test_input in safe_prompt
     print("✅ Safe formatting works")
 
@@ -67,7 +67,7 @@ def test_safety_features():
         print("ℹ️ Profanity filtering not available (better_profanity not installed)")
 
     print("\n🎉 All safety tests passed!")
-    print("The Prompt Playground safety features are working correctly.")
+    print("The Prompt Engineering Studio safety features are working correctly.")
 
 
 if __name__ == "__main__":

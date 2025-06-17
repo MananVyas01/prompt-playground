@@ -1,6 +1,6 @@
 """
-Utils package for Prompt Playground.
-Contains utilities for prompt formatting and processing.
+Utils package for Prompt Engineering Studio.
+Contains utilities for professional prompt formatting and processing.
 """
 
 from .prompt_formatter import (
