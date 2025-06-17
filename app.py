@@ -6,17 +6,7 @@ import difflib
 import base64
 from datetime import datetime
 from typing import Dict, List
-frodef load_models() -> List[str]:
-    """Return list of available models with safety indicators"""
-    return [
-        "FakeGPT (🔧 Prompt Refiner - Improves Your Input)",  # Prompt refiner mode
-        "google/flan-t5-small",  # Safe, instruction-tuned model
-        "tiiuae/falcon-rw-1b",   # Safe, curated training data
-        "EleutherAI/pythia-70m", # Safer, smaller research model
-        "distilgpt2 (⚠️ unfiltered)", # Warning for unfiltered model
-        "sshleifer/tiny-gpt2 (⚠️ may generate NSFW text)", # Warning for potential NSFW
-        "microsoft/DialoGPT-small", # Conversational, relatively safe
-    ]ad_model import load_model, generate_text, get_model_info
+from models.load_model import load_model, generate_text, get_model_info
 from utils.prompt_formatter import (
     format_prompt,
     validate_template,
@@ -34,8 +24,8 @@ except ImportError:
 
 # Page configuration
 st.set_page_config(
-    page_title="Prompt Playground",
-    page_icon="🧠",
+    page_title="Prompt Engineering Studio",
+    page_icon="🔧",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -158,15 +148,14 @@ def load_prompt_types() -> Dict:
 
 
 def load_models() -> List[str]:
-    """Return list of available models with safety indicators"""
+    """Return list of available prompt optimization tools and models"""
     return [
-        "FakeGPT (🔧 Simulator - Fastest & Safest)",  # Simulator mode
-        "google/flan-t5-small",  # Safe, instruction-tuned model
-        "tiiuae/falcon-rw-1b",  # Safe, curated training data
-        "EleutherAI/pythia-70m",  # Safer, smaller research model
-        "distilgpt2 (⚠️ unfiltered)",  # Warning for unfiltered model
-        "sshleifer/tiny-gpt2 (⚠️ may generate NSFW text)",  # Warning for potential NSFW
-        "microsoft/DialoGPT-small",  # Conversational, relatively safe
+        "Prompt Refiner (🔧 AI-Powered Optimization)",  # Main prompt refiner
+        "Prompt Analyzer (📊 Structure Analysis)",      # Analyzes prompt structure
+        "Few-Shot Generator (📝 Example Creator)",       # Creates few-shot examples
+        "Chain-of-Thought Builder (🧠 Reasoning Guide)", # Builds CoT prompts
+        "google/flan-t5-small (🤖 Validation Model)",   # For testing refined prompts
+        "distilgpt2 (⚠️ Baseline Comparison)",          # Baseline for comparison
     ]
 
 
@@ -184,9 +173,12 @@ def copy_to_clipboard(text: str) -> bool:
 def get_actual_model_name(display_name: str) -> str:
     """Convert display name to actual model name for loading"""
     model_mapping = {
-        "FakeGPT (🔧 Prompt Refiner - Improves Your Input)": "fakegpt",
-        "distilgpt2 (⚠️ unfiltered)": "distilgpt2",
-        "sshleifer/tiny-gpt2 (⚠️ may generate NSFW text)": "sshleifer/tiny-gpt2",
+        "Prompt Refiner (🔧 AI-Powered Optimization)": "prompt_refiner",
+        "Prompt Analyzer (📊 Structure Analysis)": "prompt_analyzer", 
+        "Few-Shot Generator (📝 Example Creator)": "few_shot_generator",
+        "Chain-of-Thought Builder (🧠 Reasoning Guide)": "cot_builder",
+        "google/flan-t5-small (🤖 Validation Model)": "google/flan-t5-small",
+        "distilgpt2 (⚠️ Baseline Comparison)": "distilgpt2",
         # Other models use their display name as actual name
     }
     return model_mapping.get(display_name, display_name)
@@ -216,10 +208,10 @@ def main():
         )
         st.markdown("<br>", unsafe_allow_html=True)
     else:
-        st.title("🧠 Prompt Playground")
+        st.title("🔧 Prompt Engineering Studio")
 
     st.markdown(
-        "*An interactive app to test different types of prompts with small, CPU-only open-source language models*"
+        "*Professional prompt engineering and optimization platform for AI/LLM interactions*"
     )
 
     # Load data
@@ -291,22 +283,22 @@ def main():
         st.sidebar.error("No prompt types available")
         return
 
-    # Model Selector
+    # Prompt Engineering Tools Selector
     selected_models = st.sidebar.multiselect(
-        "🤖 Select Models (2-3 max)",
+        "🔧 Select Prompt Engineering Tools",
         models,
         default=[
-            "FakeGPT (🔧 Prompt Refiner - Improves Your Input)"
+            "Prompt Refiner (🔧 AI-Powered Optimization)"
         ],  # Default to prompt refiner
         max_selections=3,
-        help="Choose up to 3 lightweight models for comparison",
+        help="Choose up to 3 prompt engineering tools and validation models",
     )
 
-    # Warning if too many models selected
+    # Warning if too many tools selected
     if len(selected_models) > 3:
-        st.sidebar.warning("⚠️ Please select max 3 models to avoid memory issues")
+        st.sidebar.warning("⚠️ Please select max 3 tools to avoid processing conflicts")
     elif len(selected_models) == 0:
-        st.sidebar.warning("⚠️ Please select at least one model")
+        st.sidebar.warning("⚠️ Please select at least one prompt engineering tool")
 
     # Safety warnings for unsafe models
     unsafe_models = [model for model in selected_models if is_unsafe_model(model)]
@@ -316,11 +308,11 @@ def main():
             "Output may contain inappropriate or NSFW content."
         )
 
-    # FakeGPT simulator mode info
-    fake_models = [model for model in selected_models if "FakeGPT" in model]
-    if fake_models:
+    # Prompt Engineering Tools info
+    refiner_tools = [model for model in selected_models if any(tool in model for tool in ["Refiner", "Analyzer", "Generator", "Builder"])]
+    if refiner_tools:
         st.sidebar.info(
-            "🔧 You are using FakeGPT – a prompt refiner that improves your input for better LLM responses."
+            "🔧 **Professional Mode**: You are using AI-powered prompt engineering tools for optimization and analysis."
         )
 
     # Sidebar spacing
@@ -401,8 +393,8 @@ def main():
     elif validation_message and is_valid_input:
         st.sidebar.info(validation_message)
 
-    # Submit Button
-    submit_button = st.sidebar.button("🚀 Generate", type="primary", key="generate_btn")
+    # Process Button
+    submit_button = st.sidebar.button("� Optimize & Analyze", type="primary", key="process_btn")
 
     # Regenerate Button (only show if there are previous responses)
     regenerate_button = False
@@ -410,7 +402,7 @@ def main():
         st.session_state.last_models_used
     ) == set(selected_models):
         regenerate_button = st.sidebar.button(
-            "🔄 Regenerate All Responses", key="regenerate_btn"
+            "🔄 Re-process with Same Tools", key="regenerate_btn"
         )
 
     # Comparison Options
@@ -470,7 +462,7 @@ def main():
                     st.code(final_prompt)
 
     with col2:
-        st.subheader("⚡ Model Outputs")
+        st.subheader("🔧 Prompt Engineering Results")
 
         # Show model info for selected models
         if selected_models:
@@ -525,9 +517,9 @@ def main():
 
                         # Time the generation
                         start_time = time.time()
-                        with st.spinner(f"Generating with {actual_model_name}..."):
-                            # Handle FakeGPT differently
-                            if actual_model_name.lower() == "fakegpt":
+                        with st.spinner(f"Processing with {actual_model_name}..."):
+                            # Handle prompt engineering tools
+                            if actual_model_name in ["prompt_refiner", "prompt_analyzer", "few_shot_generator", "cot_builder", "fakegpt"]:
                                 raw_generated_text = model_pipeline(final_prompt)
                             else:
                                 raw_generated_text = generate_text(
@@ -535,10 +527,14 @@ def main():
                                 )
                         end_time = time.time()
 
-                        # Apply safety filtering
-                        filtered_text, was_filtered = filter_output(raw_generated_text)
+                        # Apply safety filtering (skip for prompt engineering tools)
+                        if actual_model_name in ["prompt_refiner", "prompt_analyzer", "few_shot_generator", "cot_builder", "fakegpt"]:
+                            filtered_text = raw_generated_text
+                            was_filtered = False
+                        else:
+                            filtered_text, was_filtered = filter_output(raw_generated_text)
 
-                        # Store the filtered result
+                        # Store the result
                         model_responses[model_name] = filtered_text
                         generation_times[model_name] = end_time - start_time
 
@@ -572,7 +568,7 @@ def main():
                 status_text.empty()
 
                 # Display results side by side
-                st.write("**🤖 Model Comparison:**")
+                st.write("**🔧 Prompt Engineering Analysis:**")
 
                 # Create columns for side-by-side comparison
                 if len(selected_models) == 1:

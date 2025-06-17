@@ -2,7 +2,6 @@
 
 **Prompt Playground Lite** is an interactive Streamlit app built for prompt engineers, LLM researchers, and curious developers to test different types of prompts on small, CPU-friendly language models — all within the constraints of free-tier Streamlit Cloud (1GB RAM, no GPU).
 
-🔗 **Live Demo:** [👉 Try the App](https://prompt-playground-lite.streamlit.app/)
 
 ---
 

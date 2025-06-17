@@ -1,6 +1,6 @@
 """
-Model loading utilities for the Prompt Playground app.
-Handles loading and caching of Hugging Face models optimized for CPU inference.
+Model loading utilities for the Prompt Engineering Studio.
+Handles loading and caching of Hugging Face models and prompt engineering tools.
 """
 
 import streamlit as st
@@ -9,6 +9,12 @@ import torch
 from typing import Optional, Any
 import logging
 from models.fake_llm import fake_llm
+from models.prompt_engineering_tools import (
+    prompt_refiner, 
+    prompt_analyzer, 
+    few_shot_generator, 
+    cot_builder
+)
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -18,19 +24,27 @@ logger = logging.getLogger(__name__)
 @st.cache_resource
 def load_model(model_name: str) -> Optional[Any]:
     """
-    Load a Hugging Face model using transformers pipeline.
+    Load a Hugging Face model or prompt engineering tool.
 
     Args:
-        model_name (str): The model name/path from Hugging Face Hub
+        model_name (str): The model name/path or tool identifier
 
     Returns:
-        transformers.Pipeline or None: The loaded pipeline or None if loading fails
+        Pipeline, function, or None: The loaded model/tool or None if loading fails
     """
     try:
-        logger.info(f"Loading model: {model_name}")
+        logger.info(f"Loading model/tool: {model_name}")
 
-        # Handle FakeGPT simulator
-        if model_name.lower() == "fakegpt":
+        # Handle prompt engineering tools
+        if model_name == "prompt_refiner":
+            return prompt_refiner
+        elif model_name == "prompt_analyzer":
+            return prompt_analyzer
+        elif model_name == "few_shot_generator":
+            return few_shot_generator
+        elif model_name == "cot_builder":
+            return cot_builder
+        elif model_name.lower() == "fakegpt":
             return fake_llm
 
         # Determine the task based on the model
@@ -106,32 +120,62 @@ def generate_text(model_pipeline: Any, prompt: str, max_new_tokens: int = 50) ->
 
 def get_model_info(model_name: str) -> dict:
     """
-    Get information about the model for display purposes.
+    Get information about the model or tool for display purposes.
 
     Args:
-        model_name (str): The model name
+        model_name (str): The model name or tool identifier
 
     Returns:
-        dict: Model information
+        dict: Model/tool information
     """
     model_info = {
+        "prompt_refiner": {
+            "type": "AI Prompt Optimizer",
+            "size": "~0MB",
+            "task": "prompt-optimization",
+            "description": "Professional prompt refinement and optimization tool",
+        },
+        "prompt_analyzer": {
+            "type": "Prompt Structure Analyzer",
+            "size": "~0MB", 
+            "task": "prompt-analysis",
+            "description": "Analyzes prompt structure and provides improvement suggestions",
+        },
+        "few_shot_generator": {
+            "type": "Few-Shot Example Generator",
+            "size": "~0MB",
+            "task": "example-generation", 
+            "description": "Creates few-shot examples for better prompt engineering",
+        },
+        "cot_builder": {
+            "type": "Chain-of-Thought Builder",
+            "size": "~0MB",
+            "task": "reasoning-enhancement",
+            "description": "Builds chain-of-thought prompts for improved reasoning",
+        },
         "fakegpt": {
-            "type": "FakeGPT Prompt Refiner",
+            "type": "Legacy Prompt Refiner",
             "size": "~0MB",
             "task": "prompt-refinement",
-            "description": "Refines and improves user prompts for better LLM responses",
+            "description": "Basic prompt refinement (legacy mode)",
+        },
+        "google/flan-t5-small": {
+            "type": "T5 Validation Model",
+            "size": "~80MB",
+            "task": "text-generation",
+            "description": "Instruction-tuned model for testing refined prompts",
+        },
+        "distilgpt2": {
+            "type": "GPT-2 Baseline",
+            "size": "~353MB", 
+            "task": "text-generation",
+            "description": "Baseline model for comparison testing",
         },
         "sshleifer/tiny-gpt2": {
             "type": "GPT-2 (Tiny)",
             "size": "~40MB",
             "task": "text-generation",
             "description": "Ultra-lightweight GPT-2 variant for testing",
-        },
-        "distilgpt2": {
-            "type": "DistilGPT-2",
-            "size": "~353MB",
-            "task": "text-generation",
-            "description": "Distilled version of GPT-2, 2x faster, same performance",
         },
         "gpt2": {
             "type": "GPT-2 Base",
@@ -153,6 +197,6 @@ def get_model_info(model_name: str) -> dict:
             "type": "Unknown",
             "size": "Unknown",
             "task": "text-generation",
-            "description": "Custom model",
+            "description": "Custom model or tool",
         },
     )
