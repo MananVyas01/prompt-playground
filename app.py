@@ -507,9 +507,13 @@ def main():
                         # Time the generation
                         start_time = time.time()
                         with st.spinner(f"Generating with {actual_model_name}..."):
-                            raw_generated_text = generate_text(
-                                model_pipeline, final_prompt, max_new_tokens=50
-                            )
+                            # Handle FakeGPT differently
+                            if actual_model_name.lower() == "fakegpt":
+                                raw_generated_text = model_pipeline(final_prompt)
+                            else:
+                                raw_generated_text = generate_text(
+                                    model_pipeline, final_prompt, max_new_tokens=50
+                                )
                         end_time = time.time()
 
                         # Apply safety filtering
